@@ -1,0 +1,6 @@
+core/api/node_modules
+chaincode/nodejs/node_modules
+crypto-config
+core/api/sdk_app/hfc-key-store
+
+
