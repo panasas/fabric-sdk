@@ -17,30 +17,30 @@ function generateOrdererOrg () {
     typeset caKey=$caDir/ca.$orgName-key.pem
     typeset caCsr=$caDir/ca.$orgName-csr.pem
 	typeset caCert=$caDir/ca.$orgName-cert.pem
-    newCA $caDir ca.$orgName $signCert $signKey $caKey $caCsr $caCert "true" $orgName "NULL"
+    newCA $caDir ca.$orgName $signCert $signKey $caKey $caCsr $caCert "true" $orgName "NULL" "NULL"
     typeset caKey=$caDir/$(getSKI $caCert)"_sk"
 
     # Generate TLSCA certificate
     typeset tlscaKey=$tlscaDir/tlsca.$orgName-key.pem
     typeset tlscaCsr=$tlscaDir/tlsca.$orgName-csr.pem
 	typeset tlscaCert=$tlscaDir/tlsca.$orgName-cert.pem
-    newCA $tlscaDir tlsca.$orgName $signCert $signKey $tlscaKey $tlscaCsr $tlscaCert "true" $orgName "NULL"
+    newCA $tlscaDir tlsca.$orgName $signCert $signKey $tlscaKey $tlscaCsr $tlscaCert "true" $orgName "NULL" "NULL"
     typeset tlscaKey=$tlscaDir/$(getSKI $tlscaCert)"_sk"
 
     # Generate Admin certificate
     typeset admincacertsKey=$mspDir/admincerts/Admin@$orgName-key.pem
     typeset admincacertsCsr=$mspDir/admincerts/Admin@$orgName-csr.pem
 	typeset admincacertsCert=$mspDir/admincerts/Admin@$orgName-cert.pem
-    generateVerifyingMSP $mspDir $orgName $caCert $caKey $tlscaCert $admincacertsKey $admincacertsCsr $admincacertsCert
+    generateVerifyingMSP $mspDir $orgName $caCert $caKey $tlscaCert $admincacertsKey $admincacertsCsr $admincacertsCert "NULL"
     typeset admincacertsKey=$mspDir/admincerts/$(getSKI $admincacertsCert)"_sk"
 
     # Generate orderer
-    generateNodes $orderersDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "orderer"
+    generateNodes $orderersDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "orderer" "NULL"
 
     # Generate Admin
     typeset adminDir=$usersDir/Admin@$orgName
     mkdir -p $adminDir
-    generateNodes $adminDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "Admin"
+    generateNodes $adminDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "Admin" "NULL"
 
     rm $admincacertsKey
 }
@@ -65,21 +65,21 @@ function generatePeerOrg () {
     typeset caKey=$caDir/ca.$orgName-key.pem
     typeset caCsr=$caDir/ca.$orgName-csr.pem
 	typeset caCert=$caDir/ca.$orgName-cert.pem
-    newCA $caDir ca.$orgName $signCert $signKey $caKey $caCsr $caCert "true" $orgName "NULL"
+    newCA $caDir ca.$orgName $signCert $signKey $caKey $caCsr $caCert "true" $orgName "NULL" "NULL"
     typeset caKey=$caDir/$(getSKI $caCert)"_sk"
 
     # Generate TLSCA certificate
     typeset tlscaKey=$tlscaDir/tlsca.$orgName-key.pem
     typeset tlscaCsr=$tlscaDir/tlsca.$orgName-csr.pem
 	typeset tlscaCert=$tlscaDir/tlsca.$orgName-cert.pem
-    newCA $tlscaDir tlsca.$orgName $signCert $signKey $tlscaKey $tlscaCsr $tlscaCert "true" $orgName "NULL"
+    newCA $tlscaDir tlsca.$orgName $signCert $signKey $tlscaKey $tlscaCsr $tlscaCert "true" $orgName "NULL" "NULL"
     typeset tlscaKey=$tlscaDir/$(getSKI $tlscaCert)"_sk"
 
     # Generate Admin certificate
     typeset admincacertsKey=$mspDir/admincerts/Admin@$orgName-key.pem
     typeset admincacertsCsr=$mspDir/admincerts/Admin@$orgName-csr.pem
 	typeset admincacertsCert=$mspDir/admincerts/Admin@$orgName-cert.pem
-    generateVerifyingMSP $mspDir $orgName $caCert $caKey $tlscaCert $admincacertsKey $admincacertsCsr $admincacertsCert
+    generateVerifyingMSP $mspDir $orgName $caCert $caKey $tlscaCert $admincacertsKey $admincacertsCsr $admincacertsCert "NULL"
     typeset admincacertsKey=$mspDir/admincerts/$(getSKI $admincacertsCert)"_sk"
 
     # Generate peers
@@ -89,21 +89,21 @@ function generatePeerOrg () {
 	do
         typeset peerDir=$peersDir/peer$count.$orgName
         mkdir -p $peerDir
-        generateNodes $peerDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "peer$count"
+        generateNodes $peerDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "peer$count" "serverAuth,clientAuth"
         (( count+=1 ))
     done
 
     # Generate Admin
     typeset adminDir=$usersDir/Admin@$orgName
     mkdir -p $adminDir
-    generateNodes $adminDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "Admin"
+    generateNodes $adminDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "Admin" "NULL"
 
     count=0
     while [[ $count -lt $userCount ]]
 	do
         typeset userDir=$usersDir/User$count@$orgName
         mkdir -p $userDir
-        generateNodes $userDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "User$count"
+        generateNodes $userDir $orgName $caCert $caKey $tlscaCert $tlscaKey $admincacertsCert $admincacertsKey "User$count" "NULL"
         (( count+=1 ))
     done
     rm $admincacertsKey
@@ -119,6 +119,7 @@ function generateNodes () {
     adminCert=$7
     adminKey=$8
     nodeType=$9
+    extendedKeyUsage=${10}
 
     typeset tlsDir=$baseDir/tls
     typeset mspDir=$baseDir/msp
@@ -136,16 +137,20 @@ function generateNodes () {
 	    tlsCert=$tlsDir/$nodeType@$orgName-cert.pem
     fi
 
-    newCA $tlsDir $nodeType.$orgName $tlscaCert $tlscaKey $tlsKey $tlsCsr $tlsCert "false" "NULL" "NULL"
+    newCA $tlsDir $nodeType.$orgName $tlscaCert $tlscaKey $tlsKey $tlsCsr $tlsCert "false" "NULL" "NULL" $extendedKeyUsage
     typeset tlsKey=$tlsDir/$(getSKI $tlsCert)"_sk"
 
-    # if [[ $type == "orde" || $type == "peer" ]] ; then
+    if [[ $type == "orde" || $type == "peer" ]] ; then
         mv $tlsCert $tlsDir/"server.crt"
         mv $tlsKey $tlsDir/"server.key"
-        cp $caCert $tlsDir/"ca.crt"
-    # else
+        cp $tlscaCert $tlsDir/"ca.crt"
+    else
+        mv $tlsCert $tlsDir/"client.crt"
+        mv $tlsKey $tlsDir/"client.key"
+        cp $tlscaCert $tlsDir/"ca.crt"
+    fi
     
-    generateLocalMSP $mspDir $orgName $caCert $caKey $tlscaCert $tlscaKey $adminCert $adminKey $nodeType
+    generateLocalMSP $mspDir $orgName $caCert $caKey $tlscaCert $tlscaKey $adminCert $adminKey $nodeType $extendedKeyUsage
 }
 
 function generateLocalMSP () {
@@ -158,6 +163,7 @@ function generateLocalMSP () {
     typeset adminCert=$7
     typeset adminKey=$8
     typeset nodeType=$9
+    typeset extendedKeyUsage=${10}
 	
     typeset admincertsDir=$baseDir/admincerts
     typeset cacertsDir=$baseDir/cacerts
@@ -182,7 +188,7 @@ function generateLocalMSP () {
         cp $adminCert $signcertsDir
         cp $adminKey $keystoreDir
     else
-        newCA $signcertsDir $nodeType.$orgName $caCert $caKey $nodeKey $nodeCsr $nodeCert "false" "NULL" "NULL"
+        newCA $signcertsDir $nodeType.$orgName $caCert $caKey $nodeKey $nodeCsr $nodeCert "false" "NULL" "NULL" $extendedKeyUsage
         nodeKey=$signcertsDir/$(getSKI $nodeCert)"_sk"
         mv $nodeKey $keystoreDir
     fi
@@ -201,13 +207,14 @@ function generateVerifyingMSP () {
     typeset admincacertsKey=$6
     typeset admincacertsCsr=$7
 	typeset admincacertsCert=$8
+    typeset extendedKeyUsage=$9
 
     typeset admincertsDir=$baseDir/admincerts
     typeset cacertsDir=$baseDir/cacerts
     typeset tlscacertsDir=$baseDir/tlscacerts
     mkdir -p $admincertsDir $cacertsDir $tlscacertsDir
 
-    newCA $admincertsDir Admin@$orgName $caCert $caKey $admincacertsKey $admincacertsCsr $admincacertsCert "false" "NULL" "NULL"
+    newCA $admincertsDir Admin@$orgName $caCert $caKey $admincacertsKey $admincacertsCsr $admincacertsCert "false" "NULL" "NULL" $extendedKeyUsage
     typeset admincacertsKey=$admincacertsDir/$(getSKI $admincacertsCert)"_sk"
 
     cp $caCert $cacertsDir
@@ -225,9 +232,10 @@ function newCA () {
     typeset caFlag=$8
     typeset org=$9
 	typeset orgUnit=${10}
+    typeset extendedKeyUsage=${11}
 
     generateKey $newKey
-	generateCSR $newKey $orgName $signCert $signKey $newCsr $caFlag $org $orgUnit 
+	generateCSR $newKey $orgName $signCert $signKey $newCsr $caFlag $org $orgUnit $extendedKeyUsage
 	generateCert $newCsr $signCert $signKey $newCert
 
     key=$baseDir/$(getSKI $newCert)"_sk"
@@ -264,11 +272,18 @@ function generateCSR () {
 	typeset caFlag=$6
 	typeset org=$7
     typeset orgUnit=$8
+    typeset extendedKeyUsage=$9
 
 	cp $confFileTemplate $confFile
 	sed -i "s,%%root_key,$rootCaCert," $confFile
 	sed -i "s,%%root_cert,$rootCaKey," $confFile
 	sed -i "s,%%caFlag,$caFlag," $confFile
+
+    if [[ $extendedKeyUsage != "NULL" ]] ; then
+        sed -i "s/%%extendedKeyUsage/$extendedKeyUsage/" $confFile
+    else
+        sed -i "s/%%extendedKeyUsage/anyExtendedKeyUsage/" $confFile
+    fi
 
 	if [[ $org != "NULL" && $orgUnit != "NULL" ]] ; then
 		openssl req -new -config $confFile -extensions $extension -x509 -key $keyFile -out $csrFile -subj "/C=US/ST=California/L=San Francisco/CN=$CN/O=$org/OU=$orgUnit"
@@ -335,8 +350,8 @@ fi
 mkdir -p $cryptoDir $ordererDir $peerDir
 
 generateOrdererOrg $ordererDir example.com $rootCert $rootKey
-generatePeerOrg $peerDir br.example.com $rootCert $rootKey 2 2
-#generatePeerOrg $peerDir org2.example.com $rootCert $rootKey 2 2
+generatePeerOrg $peerDir org1.example.com $rootCert $rootKey 2 2
+generatePeerOrg $peerDir org2.example.com $rootCert $rootKey 2 2
 
 
 

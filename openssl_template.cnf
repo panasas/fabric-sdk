@@ -99,7 +99,7 @@ subjectKeyIdentifier = hash
 keyUsage = critical, digitalSignature, cRLSign, keyCertSign
 basicConstraints = critical, CA:%%caFlag, pathlen:0
 authorityKeyIdentifier = keyid:always,issuer
-extendedKeyUsage = anyExtendedKeyUsage
+extendedKeyUsage = %%extendedKeyUsage
 
 [ usr_cert ]
 # Extensions for client certificates (`man x509v3_config`).

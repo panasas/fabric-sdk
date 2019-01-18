@@ -11,4 +11,4 @@ docker exec -e "CORE_PEER_LOCALMSPID=BRMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gop
 
 openssl ecparam -name prime256v1 -genkey -out temp.private.key
 openssl pkcs8 -topk8 -nocrypt -in temp.private.key  -out private.key
-openssl req -new -days 7500 -nodes -config openssl.cnf  -extensions v3_ca  -x509 -key private.key -out public.pem -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=broadridge.com"
+openssl req -new -days 7500 -nodes -config openssl.cnf  -extensions v3_ca  -x509 -key private.key -out public.pem -subj "/C=US/ST=California/L=San Francisco/CN=broadridge.com"
