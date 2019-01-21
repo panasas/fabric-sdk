@@ -40,6 +40,7 @@ let submitTransaction = () => {
 		fabric_client.setCryptoSuite(crypto_suite);
 
 		// get the enrolled user from persistence, this user will sign all requests
+		console.log('came here');
 		return fabric_client.getUserContext('user1', true);
 	}).then((user_from_store) => {
 		if (user_from_store && user_from_store.isEnrolled()) {
@@ -60,12 +61,13 @@ let submitTransaction = () => {
 			//targets: let default to the peer assigned to the client
 			chaincodeId: 'csdLinks',
 			fcn: 'invoke',
-			args: ["FR","{\"countryName\":\"France\"}"],
+			args: ["A","10"],
 			chainId: 'mychannel',
 			txId: tx_id
 		};
 
 		// send the transaction proposal to the peers
+		console.log('came here');
 		return channel.sendTransactionProposal(request);
 	}).then((results) => {
 		var proposalResponses = results[0];

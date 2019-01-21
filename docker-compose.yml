@@ -10,10 +10,11 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.example.com
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.br.example.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/c23ae33a0f626b2971eecb9e4b8561155be2fb34074698c3ac69133a0f6d0c66_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/771fa09ee915e1de5a8d28723c234889024f3735_sk
     ports:
       - "7054:7054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw'
+    # command: sh -c 'touch text'
     volumes:
       - ./crypto-config/peerOrganizations/br.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca.example.com

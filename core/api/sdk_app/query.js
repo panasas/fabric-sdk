@@ -57,7 +57,7 @@ let queryLedger = () => {
 			// args: ["IssuerInfoRequest","BR"]
 			chaincodeId: 'csdLinks',
 			fcn: 'query',
-			args: ['UK']
+			args: ['A']
 		};
 
 		// send the query proposal to the peer
