@@ -46,7 +46,10 @@ docker-compose -f ./docker-compose.yml down --volumes --remove-orphans
 # docker-compose -f ./docker-compose.yml up -d
 # docker exec cli scripts/script.sh
 
-docker exec -e "CORE_PEER_LOCALMSPID=BRMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/br.example.com/users/Admin@br.example.com/msp" cli peer chaincode install -n csdLinks -v 1.0 -p /opt/gopath/src/github.com/chaincode/nodejs -l node
+docker exec -e "CORE_PEER_LOCALMSPID=BRMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/br.example.com/users/Admin@br.example.com/msp" cli 
+
+
+
 echo "Instantiating"
 docker exec -e "CORE_PEER_LOCALMSPID=BRMSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/br.example.com/users/Admin@br.example.com/msp" cli peer chaincode instantiate -o orderer.example.com:7050 -C mychannel -n csdLinks -l node -v 1.0 -c '{"Args":["init"]}' -P "OR ('BRMSP.member')"
 
